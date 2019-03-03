@@ -146,7 +146,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         return func.HttpResponse(img)
     else:
         return func.HttpResponse(
-             "Please pass an image url as "url" parameter on the query string or in the request body",
+             "Please pass an image url as \"url\" parameter on the query string or in the request body",
              status_code=400
         )
 
