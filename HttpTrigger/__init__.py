@@ -41,10 +41,10 @@ def run(url):
     response = f"URL: {url} \r\n"
     K.clear_session()
     model = VGG16(weights=None) #weights='imagenet')
-    response += f"Initializing weights: {time.time() - start_time :.2f} sec \r\n"
+    response += f"Initializing weights: @ {time.time() - start_time :.2f} sec \r\n"
 
     model.load_weights("HttpTrigger/vgg16_weights_tf_dim_ordering_tf_kernels.h5")
-    response += f"+Loading weights: {time.time() - start_time :.2f} sec \r\n \r\n"
+    response += f"+Loading weights: @ {time.time() - start_time :.2f} sec \r\n \r\n"
 
     f = urlopen(url)
     img_org = Image.open(f)
@@ -57,6 +57,8 @@ def run(url):
     for i in range(3):
         res = decode_predictions(preds, top=3)[0][i]
         response += f"{res[1]} - {res[2]*100:.2f}%\r\n"
+
+    response += f"Image load + Predictions: @ {time.time() - start_time :.2f} sec \r\n \r\n"
 
     ind = np.argmax(preds[0])
 
@@ -81,6 +83,8 @@ def run(url):
     # We multiply each channel in the feature map array by "how important this channel is" with regard to the predicted class
     for i in range(512):
         conv_layer_output_value[:, :, i] *= pooled_grads_value[i]
+    
+    response += f"Activation layers: @ {time.time() - start_time :.2f} sec \r\n \r\n"
 
     # The channel-wise mean of the resulting feature map is our heatmap of class activation
     heatmap = np.mean(conv_layer_output_value, axis=-1)
@@ -101,14 +105,15 @@ def run(url):
     heatmap = np.uint8(heatmap)
     heatmap = np.expand_dims(heatmap, axis=0)
     
+    response += f"HeatMap created: @ {time.time() - start_time :.2f} sec \r\n \r\n"
     sess = tf.Session()
     with sess.as_default():
         heatmap = tf.image.resize_images(heatmap, img_org.size[::-1], align_corners=True).eval()[0]
     heatmap = np.uint8(heatmap)
 
-
-    
     superimposed_img = heatmap * 0.8 + img_org
+    response += f"TensorFlow Heatmap superimposing: @ {time.time() - start_time :.2f} sec \r\n \r\n"
+
     result_img = image.array_to_img(superimposed_img)
     
     draw = ImageDraw.Draw(result_img)
@@ -116,8 +121,8 @@ def run(url):
     
     response += f"\r\nTotal execution time: {time.time() - start_time :.2f} sec\r\n"
     
-    draw.text( (10,10), response, (255, 255, 255), font=font)
-    result_img.save('test.jpg')
+    draw.text( (10,10), response, (55, 255, 55), font=font)
+    #result_img.save('test.jpg')
     return result_img
     #return response    
 
@@ -141,7 +146,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         return func.HttpResponse(img)
     else:
         return func.HttpResponse(
-             "Please pass a name on the query string or in the request body",
+             "Please pass an image url as "url" parameter on the query string or in the request body",
              status_code=400
         )
 
