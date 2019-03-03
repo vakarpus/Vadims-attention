@@ -41,7 +41,7 @@ def run(url):
     response = f"URL: {url} \r\n"
     K.clear_session()
     model = VGG16(weights=None) #weights='imagenet')
-    response += f"Initializign weights: {time.time() - start_time :.2f} sec \r\n"
+    response += f"Initializing weights: {time.time() - start_time :.2f} sec \r\n"
 
     model.load_weights("HttpTrigger/vgg16_weights_tf_dim_ordering_tf_kernels.h5")
     response += f"+Loading weights: {time.time() - start_time :.2f} sec \r\n \r\n"
@@ -145,9 +145,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
              status_code=400
         )
 
-url = "https://upload.wikimedia.org/wikipedia/commons/6/67/Dalmatiner_3.jpg"
-img = run(url)
+#url = "https://upload.wikimedia.org/wikipedia/commons/6/67/Dalmatiner_3.jpg"
+#img = run(url)
 #with BytesIO() as output:
 #    img.save(output, format="jpeg")
 #    print(output.getvalue())
-print(img)
+#print(img)
