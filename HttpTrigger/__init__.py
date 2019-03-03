@@ -43,7 +43,7 @@ def run(url):
     model = VGG16(weights=None) #weights='imagenet')
     response += f"Initializign weights: {time.time() - start_time :.2f} sec \r\n"
 
-    model.load_weights("./vgg16_weights_tf_dim_ordering_tf_kernels.h5")
+    model.load_weights("HttpTrigger/vgg16_weights_tf_dim_ordering_tf_kernels.h5")
     response += f"+Loading weights: {time.time() - start_time :.2f} sec \r\n \r\n"
 
     f = urlopen(url)
